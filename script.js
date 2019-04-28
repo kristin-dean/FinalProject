@@ -1,5 +1,5 @@
-var mapP = d3.json("data/us-states.json");
-var abbrP = d3.csv("data/states.csv");
+var mapP = d3.json("us-states.json");
+var abbrP = d3.csv("states.csv");
 
 Promise.all([mapP,abbrP])
        .then(function(values)
