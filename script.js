@@ -1,11 +1,13 @@
 var mapP = d3.json("us-states.json");
 var abbrP = d3.csv("states.csv");
+var deathP = d3.csv("mortalityData.csv");
 
-Promise.all([mapP,abbrP])
+Promise.all([mapP,abbrP,deathP])
        .then(function(values)
 {
   var geoData = values[0];
   var states = values[1];
+  var mortality = values[2];
 
   var statesDict = {};
   states.forEach(function(state){
@@ -17,6 +19,8 @@ Promise.all([mapP,abbrP])
   /*  console.log(feature.properties.name,
       statesDict[feature.properties.name]);
 */
+
+  console.log("mort", mortality.ALL);
   feature.properties.ABBR = statesDict[feature.properties.name].ABBR;
 
 })
