@@ -2,34 +2,42 @@
 var mapP = d3.json("us-states.json");
 var abbrP = d3.csv("states.csv");
 var deathP = d3.csv("mortalityData.csv");
+var fundingP = d3.csv("fundingData.csv");
 
 // make the promise for all datasets together //
-Promise.all([mapP,abbrP,deathP])
+Promise.all([mapP,abbrP,deathP,fundingP])
        .then(function(values)
 {
   // differentiate all of the data //
   var geoData = values[0];
   var states = values[1];
   var mortality = values[2];
+  var funding = values[3];
 
   // dictionaries to sort through the data //
   var statesDict = {};
   states.forEach(function(state){
     statesDict[state.NAME.trim()]=state;
-  })
+  });
 
   var mortDict = {};
   mortality.forEach(function(state){
     mortDict[state.State.trim()] = state;
-  })
+  });
+
+  var fundsDict = {};
+  funding.forEach(function(state){
+    fundsDict[state.State.trim()] = state;
+  });
 
   // add the data from the additonal datasets to one master dataset //
   geoData.features.forEach(function(feature,i)
 {
   feature.properties.ABBR = statesDict[feature.properties.name].ABBR;
   feature.properties.deathR = mortDict[feature.properties.name].ALL;
+  feature.properties.funds = fundsDict[feature.properties.name].Funding;
 });
-
+console.log(geoData);
   // now start drawing the visualization!! //
   drawMap(geoData);
   drawLineChart(geoData);
@@ -110,36 +118,38 @@ var drawLineChart = function(geoData) {
     var svg = d3.select("#linessvg")
                 .attr("width",screen.width)
                 .attr("height",screen.height);
-    
+
     var margins =
         {
         left:40,
         right:10,
         top:10,
         bottom:40
-        }          
-              
+        }
+
     var width = screen.width - margins.left - margins.right;
     var height = screen.height - margins.top - margins.bottom;
-                      
+
     var xScale = d3.scaleLinear()
-                   .domain([0,51])
+                   .domain(d3.extent(geoData.features))
                    .range([0,width]);
-              
+
     var yScale = d3.scaleLinear()
-                   .domain([0,50])
-                   .range([height,0]);            
+                   .domain([0,10000])
+                   .range([height,0]);
     var line = d3.line()
                  .x(function(d) {return xScale(d.properties.name)})
-                 .y(function(d) {return yScale(d.funds / d.deathR)})
-                
+                 .y(function(d) {return yScale(d.properties.funds / d.properties.deathR)})
+
+var findFunds = (geoData.features).forEach(function(d)
+            { return console.log(d.properties.funds)})
+
     svg.append("g")
        .attr("classed","line")
        .append("path")
-       .datum(data)
+       .datum(geoData)
        .attr("d",line)
        .attr("stroke","blue")
        .attr("fill","none")
        .attr("id","lineGraph")
-    
 }
