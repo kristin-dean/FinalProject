@@ -87,8 +87,8 @@ var drawMap = function(geoData)
 var firstState = function(stateData, states) {
     var screen = {width:300,height:300};
 
-    // select the svg for the map //
-    var svg = d3.select("#mapsvg")
+    // select the svg for the pyramids //
+    var svg = d3.select("#pyramidsvg")
                 .attr("width",screen.width)
                 .attr("height",screen.height);
 
@@ -103,5 +103,43 @@ var secondState = function(stateData, states) {
 };
 
 var drawLineChart = function(geoData) {
-    console.log("LINES")
+    console.log("LINES");
+    var screen = {width:500,height:300};
+
+    // select the svg for the line chart //
+    var svg = d3.select("#linessvg")
+                .attr("width",screen.width)
+                .attr("height",screen.height);
+    
+    var margins =
+        {
+        left:40,
+        right:10,
+        top:10,
+        bottom:40
+        }          
+              
+    var width = screen.width - margins.left - margins.right;
+    var height = screen.height - margins.top - margins.bottom;
+                      
+    var xScale = d3.scaleLinear()
+                   .domain([0,51])
+                   .range([0,width]);
+              
+    var yScale = d3.scaleLinear()
+                   .domain([0,50])
+                   .range([height,0]);            
+    var line = d3.line()
+                 .x(function(d) {return xScale(d.properties.name)})
+                 .y(function(d) {return yScale(d.funds / d.deathR)})
+                
+    svg.append("g")
+       .attr("classed","line")
+       .append("path")
+       .datum(data)
+       .attr("d",line)
+       .attr("stroke","blue")
+       .attr("fill","none")
+       .attr("id","lineGraph")
+    
 }
