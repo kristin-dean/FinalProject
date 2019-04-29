@@ -32,6 +32,7 @@ Promise.all([mapP,abbrP,deathP])
 
   // now start drawing the visualization!! //
   drawMap(geoData);
+  drawLineChart(geoData);
 });
 
 
@@ -73,8 +74,8 @@ var drawMap = function(geoData)
       // when a state is clicked, do something with it //
       states.on("click", function(d) {
                 console.log(d.properties.name)
-                //firstState(d)})
-              });
+                //firstState(d, states)})
+                });
 
 // this is to add text over the map but it looks bad so come back to it?? //
      /*states.append("text")
@@ -83,7 +84,7 @@ var drawMap = function(geoData)
       .text(function(d){return d.properties.ABBR});*/
 };
 
-var firstState = function(stateData) {
+var firstState = function(stateData, states) {
     var screen = {width:300,height:300};
 
     // select the svg for the map //
@@ -91,4 +92,16 @@ var firstState = function(stateData) {
                 .attr("width",screen.width)
                 .attr("height",screen.height);
 
+    states.on("click", function(d) {
+                console.log(d.properties.name)
+                //secondState(d,states)})
+                });
+};
+
+var secondState = function(stateData, states) {
+
+};
+
+var drawLineChart = function(geoData) {
+    console.log("LINES")
 }
