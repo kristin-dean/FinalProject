@@ -58,7 +58,7 @@ Promise.all([mapP,abbrP,deathP,fundingP,insuranceP,raceP,povertyP])
   feature.properties.deathR = mortDict[feature.properties.name].ALL;
   feature.properties.funds = fundsDict[feature.properties.name].Funding;
   feature.properties.insurance = insurDict[feature.properties.name].percentUninsured;
-  feature.properties.percentWhite = raceDict[feature.properties.name].White;
+  feature.properties.percentMinority = 100 - (100 * raceDict[feature.properties.name].White);
   feature.properties.povertyPerc = povertyDict[feature.properties.name].percentPoverty;
 });
   console.log(geoData)
@@ -130,12 +130,13 @@ var drawMap = function(geoData)
   geoData.features.forEach(function(d) {povertyData.push(d.properties.povertyPerc)});
 
   var raceData = [];
-  geoData.features.forEach(function(d) {raceData.push(d.properties.percentWhite)})
+  geoData.features.forEach(function(d) {raceData.push(d.properties.percentMinority)})
 
+console.log(geoData)
    // HERE - we need to initialize the pyramids so they can be changed later
    var sample = [povertyData[0],insuranceData[0],donationsData[0],raceData[0]];
    var sample2 = [povertyData[1],insuranceData[1],donationsData[1],raceData[1]];
-   var labels = ["Title 1", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "Title 4"]
+   var labels = ["% Pop Below Poverty Line", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "% Pop Non-White Race"]
 
    var svgP1 = d3.select("#pyramid1svg")
                  .attr("width",450)
@@ -224,7 +225,7 @@ var firstState = function(stateData, states) {
     var state1 = [stateData.properties.povertyPerc,
                   stateData.properties.insurance,
                   stateData.properties.donations,
-                  stateData.properties.percentWhite];
+                  stateData.properties.percentMinority];
 
     svgP1.selectAll("rect")
          .data(state1)
@@ -264,7 +265,7 @@ var secondState = function(stateData, states) {
   var state2 = [stateData.properties.povertyPerc,
                 stateData.properties.insurance,
                 stateData.properties.donations,
-                stateData.properties.percentWhite];
+                stateData.properties.percentMinority];
 
   svgP2.selectAll("rect")
        .data(state2)
