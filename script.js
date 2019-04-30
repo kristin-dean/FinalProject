@@ -4,9 +4,11 @@ var abbrP = d3.csv("states.csv");
 var deathP = d3.csv("mortalityData.csv");
 var fundingP = d3.csv("fundingData.csv");
 var insuranceP = d3.csv("insuranceData.csv");
+var raceP = d3.csv("raceData.csv");
+var povertyP = d3.csv("povertyData.csv");
 
 // make the promise for all datasets together //
-Promise.all([mapP,abbrP,deathP,fundingP,insuranceP])
+Promise.all([mapP,abbrP,deathP,fundingP,insuranceP,raceP,povertyP])
        .then(function(values)
 {
   // differentiate all of the data //
@@ -15,6 +17,8 @@ Promise.all([mapP,abbrP,deathP,fundingP,insuranceP])
   var mortality = values[2];
   var funding = values[3];
   var insurance = values[4];
+  var race = values[5];
+  var poverty = values[6];
 
   // dictionaries to sort through the data //
   var statesDict = {};
@@ -37,6 +41,16 @@ Promise.all([mapP,abbrP,deathP,fundingP,insuranceP])
     insurDict[state.State.trim()] = state;
   });
 
+  var raceDict = {};
+  race.forEach(function(state){
+    raceDict[state.State.trim()] = state;
+  });
+
+  var povertyDict = {};
+  poverty.forEach(function(state){
+    povertyDict[state.State.trim()] = state;
+  });
+
   // add the data from the additonal datasets to one master dataset //
   geoData.features.forEach(function(feature,i)
 {
@@ -44,7 +58,10 @@ Promise.all([mapP,abbrP,deathP,fundingP,insuranceP])
   feature.properties.deathR = mortDict[feature.properties.name].ALL;
   feature.properties.funds = fundsDict[feature.properties.name].Funding;
   feature.properties.insurance = insurDict[feature.properties.name].percentUninsured;
+  feature.properties.percentWhite = raceDict[feature.properties.name].White;
+  feature.properties.povertyPerc = povertyDict[feature.properties.name].percentPoverty;
 });
+  console.log(geoData)
   // now start drawing the visualization!! //
   drawMap(geoData);
   drawLineChart(geoData);
