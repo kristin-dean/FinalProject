@@ -112,7 +112,7 @@ var drawMap = function(geoData)
    // HERE - we need to initialize the pyramids so they can be changed later
    var sample = [110,insuranceData[0],donationsData[0],110];
    var sample2 = [110,insuranceData[1],donationsData[1],100];
-   var labels = ["Title 1", "% Pop w/o Med-Insurance", "Cancer Research Funding*", "Title 4"]
+   var labels = ["Title 1", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "Title 4"]
 
    var svgP1 = d3.select("#pyramid1svg")
                  .attr("width",450)
