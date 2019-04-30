@@ -4,3 +4,16 @@ div
     margin-left: auto;
     margin-right: auto;
   }
+
+
+#mapsvg
+{
+    display:block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+body 
+{
+    background-color: tan
+}
