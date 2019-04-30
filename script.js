@@ -165,7 +165,7 @@ console.log(geoData)
        .attr("id", "graphLabels")
        .attr("x", 360)
        .attr("y", function(d,i) {return 70 + (i*47)})
-       .attr("fill", "orange")
+       .attr("fill", "black")
        .attr("font-weight", "bold");
 
   svgP1.append("text")
@@ -213,7 +213,7 @@ console.log(geoData)
        .attr("id", "graphLabels")
        .attr("x", 20)
        .attr("y", function(d,i) {return 70 + (i*47)})
-       .attr("fill", "orange")
+       .attr("fill", "black")
        .attr("font-weight", "bold");
 
 };
@@ -248,7 +248,7 @@ var firstState = function(stateData, states) {
          .text(function(d) {return d3.format(",.1f")(d)})
          .attr("x", 360)
          .attr("y", function(d,i) {return 70 + (i*47)})
-         .attr("fill", "orange")
+         .attr("fill", "black")
          .attr("font-weight", "bold");
 
     states.on("click", function(d) {
@@ -288,7 +288,7 @@ var secondState = function(stateData, states) {
        .text(function(d) {return d3.format(",.1f")(d)})
        .attr("x", 20)
        .attr("y", function(d,i) {return 70 + (i*47)})
-       .attr("fill", "orange")
+       .attr("fill", "black")
        .attr("font-weight", "bold");
 
   states.on("click", function(d) {
