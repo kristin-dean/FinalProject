@@ -155,7 +155,7 @@ console.log(geoData)
        .enter()
        .append("text")
        .text(function(d) {return d;})
-       .attr("x", function(d,i) { return 425;})
+       .attr("x", function(d,i) { return 415;})
        .attr("y", function (d,i)  { return 70 + (i*47);});
   svgP1.selectAll("#graphLabels")
        .data(sample)
