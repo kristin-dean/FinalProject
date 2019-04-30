@@ -139,7 +139,7 @@ console.log(geoData)
    var labels = ["% Pop Below Poverty Line", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "% Pop Non-White Race"]
 
    var svgP1 = d3.select("#pyramid1svg")
-                 .attr("width",450)
+                 .attr("width",600)
                  .attr("height",300);
   svgP1.selectAll("rect")
        .data(sample)
@@ -186,7 +186,7 @@ console.log(geoData)
 
 
   var svgP2 = d3.select("#pyramid2svg")
-                .attr("width",250)
+                .attr("width",400)
                .attr("height",300);
   svgP2.selectAll("rect")
        .data(sample2)
