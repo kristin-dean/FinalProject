@@ -3,9 +3,10 @@ var mapP = d3.json("us-states.json");
 var abbrP = d3.csv("states.csv");
 var deathP = d3.csv("mortalityData.csv");
 var fundingP = d3.csv("fundingData.csv");
+var insuranceP = d3.csv("insuranceData.csv");
 
 // make the promise for all datasets together //
-Promise.all([mapP,abbrP,deathP,fundingP])
+Promise.all([mapP,abbrP,deathP,fundingP,insuranceP])
        .then(function(values)
 {
   // differentiate all of the data //
@@ -13,6 +14,7 @@ Promise.all([mapP,abbrP,deathP,fundingP])
   var states = values[1];
   var mortality = values[2];
   var funding = values[3];
+  var insurance = values[4];
 
   // dictionaries to sort through the data //
   var statesDict = {};
@@ -29,12 +31,19 @@ Promise.all([mapP,abbrP,deathP,fundingP])
   funding.forEach(function(state){
     fundsDict[state.State.trim()] = state;
   });
+
+  var insurDict = {};
+  insurance.forEach(function(state){
+    insurDict[state.State.trim()] = state;
+  });
+
   // add the data from the additonal datasets to one master dataset //
   geoData.features.forEach(function(feature,i)
 {
   feature.properties.ABBR = statesDict[feature.properties.name].ABBR;
   feature.properties.deathR = mortDict[feature.properties.name].ALL;
   feature.properties.funds = fundsDict[feature.properties.name].Funding;
+  feature.properties.insurance = insurDict[feature.properties.name].percentUninsured;
 });
   // now start drawing the visualization!! //
   drawMap(geoData);
@@ -94,15 +103,16 @@ var drawMap = function(geoData)
 // how do we want to work with the funding data ??
 // answer - dollars donated per death per 100,000 in population
   geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
-  console.log(geoData.features);
   var donationsData = [];
   geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)})
-  console.log(donationsData[1]);
+
+  var insuranceData = [];
+  geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)})
 
    // HERE - we need to initialize the pyramids so they can be changed later
-   var sample = [110,110,donationsData[0],110];
-   var sample2 = [110,110,donationsData[1],100];
-   var labels = ["Title 1", "Title 2", "Cancer Research Funding*", "Title 4"]
+   var sample = [110,insuranceData[0],donationsData[0],110];
+   var sample2 = [110,insuranceData[1],donationsData[1],100];
+   var labels = ["Title 1", "% Pop w/o Med-Insurance", "Cancer Research Funding*", "Title 4"]
 
    var svgP1 = d3.select("#pyramid1svg")
                  .attr("width",450)
@@ -186,7 +196,10 @@ var firstState = function(stateData, states) {
     var name = stateData.properties.name
     // select the svg for the pyramids //
     var svgP1 = d3.select("#pyramid1svg")
-    var state1 = [50,50,stateData.properties.donations,50];
+    var state1 = [50,
+                  stateData.properties.insurance,
+                  stateData.properties.donations,
+                  50];
 
     svgP1.selectAll("rect")
          .data(state1)
@@ -223,7 +236,10 @@ var secondState = function(stateData, states) {
   // select the svg for the pyramids //
   var svgP2 = d3.select("#pyramid2svg")
 
-  var state2 = [50,50,stateData.properties.donations,50];
+  var state2 = [50,
+                stateData.properties.insurance,
+                stateData.properties.donations,
+                50];
 
   svgP2.selectAll("rect")
        .data(state2)
