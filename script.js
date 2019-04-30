@@ -29,7 +29,6 @@ Promise.all([mapP,abbrP,deathP,fundingP])
   funding.forEach(function(state){
     fundsDict[state.State.trim()] = state;
   });
-
   // add the data from the additonal datasets to one master dataset //
   geoData.features.forEach(function(feature,i)
 {
@@ -37,7 +36,6 @@ Promise.all([mapP,abbrP,deathP,fundingP])
   feature.properties.deathR = mortDict[feature.properties.name].ALL;
   feature.properties.funds = fundsDict[feature.properties.name].Funding;
 });
-console.log(geoData);
   // now start drawing the visualization!! //
   drawMap(geoData);
   drawLineChart(geoData);
@@ -61,6 +59,9 @@ var drawMap = function(geoData)
     var getRates = (geoData.features).forEach(function(d){
                     rates.push(d.properties.deathR) })
     var maxRate = d3.max(rates);
+    var minRate = d3.min(rates);
+    var range = maxRate - minRate
+    var divisions = range / 5
 
     // create a group for each state //
     var states = svg.append("g")
@@ -74,7 +75,7 @@ var drawMap = function(geoData)
       .attr("d",geoGenerator)
       .attr("stroke","black")
       .attr("fill",function(d){
-          return d3.interpolateBlues((d.properties.deathR - 50) / maxRate)});
+          return d3.interpolateBlues((d.properties.deathR - 70) / maxRate)});
       // add a tooltip in the form of a title //
       states.append("title")
             .text(function(d) {return "State: " + d.properties.name +
@@ -90,15 +91,21 @@ var drawMap = function(geoData)
       .attr("y",function(d) {return geoGenerator.centroid(d)[1]})
       .text(function(d){return d.properties.ABBR});*/
 
+// how do we want to work with the funding data ??
+// answer - dollars donated per death per 100,000 in population
+  geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
+  console.log(geoData.features);
+  var donationsData = [];
+  geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)})
+  console.log(donationsData[1]);
 
    // HERE - we need to initialize the pyramids so they can be changed later
-
-
-   var sample = [100,100,100,100];
-   var labels = ["Title 1", "Title 2", "Title 3", "Title 4"]
+   var sample = [110,110,donationsData[0],110];
+   var sample2 = [110,110,donationsData[1],100];
+   var labels = ["Title 1", "Title 2", "Cancer Research Funding*", "Title 4"]
 
    var svgP1 = d3.select("#pyramid1svg")
-                 .attr("width",350)
+                 .attr("width",450)
                  .attr("height",300);
   svgP1.selectAll("rect")
        .data(sample)
@@ -116,6 +123,16 @@ var drawMap = function(geoData)
        .text(function(d) {return d;})
        .attr("x", function(d,i) { return 275;})
        .attr("y", function (d,i)  { return 70 + (i*47);});
+  svgP1.selectAll("#graphLabels")
+       .data(sample)
+       .enter()
+       .append("text")
+       .text(function(d) {return d3.format(",.1f")(d)})
+       .attr("id", "graphLabels")
+       .attr("x", 210)
+       .attr("y", function(d,i) {return 70 + (i*47)})
+       .attr("fill", "orange")
+       .attr("font-weight", "bold");
 
   svgP1.append("text")
        .text("Alabama")
@@ -125,12 +142,19 @@ var drawMap = function(geoData)
        .attr("fill", "blue")
        .attr("font-size", "150%");
 
+  svgP1.append("text")
+       .text("*Funding reported in Thousands of Dollars per Death per 100,000")
+       .attr("id", "cancer scale")
+       .attr("x", 10)
+       .attr("y", 280)
+       .attr("fill", "black")
+
 
   var svgP2 = d3.select("#pyramid2svg")
                 .attr("width",250)
                .attr("height",300);
   svgP2.selectAll("rect")
-       .data(sample)
+       .data(sample2)
        .enter()
        .append("rect")
        .attr("x", function(d,i) { return 10;})
@@ -145,6 +169,16 @@ var drawMap = function(geoData)
        .attr("y", 20)
        .attr("fill", "blue")
        .attr("font-size", "150%");
+  svgP2.selectAll("#graphLabels")
+       .data(sample2)
+       .enter()
+       .append("text")
+       .text(function(d) {return d3.format(",.1f")(d)})
+       .attr("id", "graphLabels")
+       .attr("x", 20)
+       .attr("y", function(d,i) {return 70 + (i*47)})
+       .attr("fill", "orange")
+       .attr("font-weight", "bold");
 
 };
 
@@ -152,11 +186,10 @@ var firstState = function(stateData, states) {
     var name = stateData.properties.name
     // select the svg for the pyramids //
     var svgP1 = d3.select("#pyramid1svg")
-
-    var sample = [50,50,50,50];
+    var state1 = [50,50,stateData.properties.donations,50];
 
     svgP1.selectAll("rect")
-         .data(sample)
+         .data(state1)
          .transition()
          .duration(600)
          .attr("x", function(d,i) { return 250 - (d*2);})
@@ -171,6 +204,13 @@ var firstState = function(stateData, states) {
          .attr("y", 20)
          .attr("fill", "blue")
          .attr("font-size", "150%");
+    svgP1.selectAll("#graphLabels")
+         .data(state1)
+         .text(function(d) {return d3.format(",.1f")(d)})
+         .attr("x", 210)
+         .attr("y", function(d,i) {return 70 + (i*47)})
+         .attr("fill", "orange")
+         .attr("font-weight", "bold");
 
     states.on("click", function(d) {
                 console.log(d.properties.name)
@@ -183,10 +223,10 @@ var secondState = function(stateData, states) {
   // select the svg for the pyramids //
   var svgP2 = d3.select("#pyramid2svg")
 
-  var sample = [50,50,50,50];
+  var state2 = [50,50,stateData.properties.donations,50];
 
   svgP2.selectAll("rect")
-       .data(sample)
+       .data(state2)
        .transition()
        .duration(600)
        .attr("x", function(d,i) { return 10;})
@@ -201,6 +241,13 @@ var secondState = function(stateData, states) {
        .attr("y", 20)
        .attr("fill", "blue")
        .attr("font-size", "150%");
+  svgP2.selectAll("#graphLabels")
+       .data(state2)
+       .text(function(d) {return d3.format(",.1f")(d)})
+       .attr("x", 20)
+       .attr("y", function(d,i) {return 70 + (i*47)})
+       .attr("fill", "orange")
+       .attr("font-weight", "bold");
 
   states.on("click", function(d) {
          console.log(d.properties.name)
