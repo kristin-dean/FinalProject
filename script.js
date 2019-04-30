@@ -74,7 +74,7 @@ var drawMap = function(geoData)
       .attr("d",geoGenerator)
       .attr("stroke","black")
       .attr("fill",function(d){
-          return d3.interpolatePurples((d.properties.deathR - 70) / maxRate)});
+          return d3.interpolateBlues((d.properties.deathR - 50) / maxRate)});
       // add a tooltip in the form of a title //
       states.append("title")
             .text(function(d) {return "State: " + d.properties.name +
@@ -82,31 +82,129 @@ var drawMap = function(geoData)
       // when a state is clicked, do something with it //
       states.on("click", function(d) {
                 console.log(d.properties.name)
-                //firstState(d, states)})
-                });
+                firstState(d, states)});
 
 // this is to add text over the map but it looks bad so come back to it?? //
      /*states.append("text")
       .attr("x",function(d) {return geoGenerator.centroid(d)[0]})
       .attr("y",function(d) {return geoGenerator.centroid(d)[1]})
       .text(function(d){return d.properties.ABBR});*/
+
+
+   // HERE - we need to initialize the pyramids so they can be changed later
+
+
+   var sample = [100,100,100,100];
+   var labels = ["Title 1", "Title 2", "Title 3", "Title 4"]
+
+   var svgP1 = d3.select("#pyramid1svg")
+                 .attr("width",350)
+                 .attr("height",300);
+  svgP1.selectAll("rect")
+       .data(sample)
+       .enter()
+       .append("rect")
+       .attr("x", function(d,i) { return 250 - (d*2);})
+       .attr("y", function (d,i)  { return 50 + (i*47);})
+       .attr("width", function(d) { return d*2;})
+       .attr("height", 30)
+       .attr("fill", "blue");
+  svgP1.selectAll("text")
+       .data(labels)
+       .enter()
+       .append("text")
+       .text(function(d) {return d;})
+       .attr("x", function(d,i) { return 275;})
+       .attr("y", function (d,i)  { return 70 + (i*47);});
+
+  svgP1.append("text")
+       .text("Alabama")
+       .attr("id", "stateName1")
+       .attr("x", 150)
+       .attr("y", 20)
+       .attr("fill", "blue")
+       .attr("font-size", "150%");
+
+
+  var svgP2 = d3.select("#pyramid2svg")
+                .attr("width",250)
+               .attr("height",300);
+  svgP2.selectAll("rect")
+       .data(sample)
+       .enter()
+       .append("rect")
+       .attr("x", function(d,i) { return 10;})
+       .attr("y", function (d,i)  { return 50 + (i*47);})
+       .attr("width", function(d) { return d*2;})
+       .attr("height", 30)
+       .attr("fill", "blue");
+  svgP2.append("text")
+       .text("Alaska")
+       .attr("id", "stateName2")
+       .attr("x", 10)
+       .attr("y", 20)
+       .attr("fill", "blue")
+       .attr("font-size", "150%");
+
 };
 
 var firstState = function(stateData, states) {
-    var screen = {width:300,height:300};
-
+    var name = stateData.properties.name
     // select the svg for the pyramids //
-    var svg = d3.select("#pyramidsvg")
-                .attr("width",screen.width)
-                .attr("height",screen.height);
+    var svgP1 = d3.select("#pyramid1svg")
+
+    var sample = [50,50,50,50];
+
+    svgP1.selectAll("rect")
+         .data(sample)
+         .transition()
+         .duration(600)
+         .attr("x", function(d,i) { return 250 - (d*2);})
+         .attr("y", function (d,i)  { return 50 + (i*47);})
+         .attr("width", function(d) { return d*2;})
+         .attr("height", 30)
+         .attr("fill", "blue");
+    svgP1.select("#stateName1")
+         .text(name)
+         .attr("id", "stateName1")
+         .attr("x", 150)
+         .attr("y", 20)
+         .attr("fill", "blue")
+         .attr("font-size", "150%");
 
     states.on("click", function(d) {
                 console.log(d.properties.name)
-                //secondState(d,states)})
-                });
+                secondState(d,states)});
 };
 
 var secondState = function(stateData, states) {
+  var name = stateData.properties.name
+
+  // select the svg for the pyramids //
+  var svgP2 = d3.select("#pyramid2svg")
+
+  var sample = [50,50,50,50];
+
+  svgP2.selectAll("rect")
+       .data(sample)
+       .transition()
+       .duration(600)
+       .attr("x", function(d,i) { return 10;})
+       .attr("y", function (d,i)  { return 50 + (i*47);})
+       .attr("width", function(d) { return d*2;})
+       .attr("height", 30)
+       .attr("fill", "blue");
+  svgP2.selectAll("#stateName2")
+       .text(name)
+       .attr("id", "stateName2")
+       .attr("x", 10)
+       .attr("y", 20)
+       .attr("fill", "blue")
+       .attr("font-size", "150%");
+
+  states.on("click", function(d) {
+         console.log(d.properties.name)
+         firstState(d,states)});
 
 };
 
@@ -141,8 +239,8 @@ var drawLineChart = function(geoData) {
                  .x(function(d) {return xScale(d.properties.name)})
                  .y(function(d) {return yScale(d.properties.funds / d.properties.deathR)})
 
-var findFunds = (geoData.features).forEach(function(d)
-            { return console.log(d.properties.funds)})
+//var findFunds = (geoData.features).forEach(function(d)
+  //          { return console.log(d.properties.funds)})
 
     svg.append("g")
        .attr("classed","line")
