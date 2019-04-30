@@ -121,14 +121,20 @@ var drawMap = function(geoData)
 // answer - dollars donated per death per 100,000 in population
   geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
   var donationsData = [];
-  geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)})
+  geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)});
 
   var insuranceData = [];
-  geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)})
+  geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)});
+
+  var povertyData = [];
+  geoData.features.forEach(function(d) {povertyData.push(d.properties.povertyPerc)});
+
+  var raceData = [];
+  geoData.features.forEach(function(d) {raceData.push(d.properties.percentWhite)})
 
    // HERE - we need to initialize the pyramids so they can be changed later
-   var sample = [110,insuranceData[0],donationsData[0],110];
-   var sample2 = [110,insuranceData[1],donationsData[1],100];
+   var sample = [povertyData[0],insuranceData[0],donationsData[0],raceData[0]];
+   var sample2 = [povertyData[1],insuranceData[1],donationsData[1],raceData[1]];
    var labels = ["Title 1", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "Title 4"]
 
    var svgP1 = d3.select("#pyramid1svg")
@@ -167,7 +173,8 @@ var drawMap = function(geoData)
        .attr("x", 150)
        .attr("y", 20)
        .attr("fill", "blue")
-       .attr("font-size", "150%");
+       .attr("font-size", "150%")
+       .attr("font-weight", "bold");
 
   svgP1.append("text")
        .text("*Funding reported in Thousands of Dollars per Death per 100,000")
@@ -195,7 +202,8 @@ var drawMap = function(geoData)
        .attr("x", 10)
        .attr("y", 20)
        .attr("fill", "blue")
-       .attr("font-size", "150%");
+       .attr("font-size", "150%")
+       .attr("font-weight", "bold");
   svgP2.selectAll("#graphLabels")
        .data(sample2)
        .enter()
@@ -213,10 +221,10 @@ var firstState = function(stateData, states) {
     var name = stateData.properties.name
     // select the svg for the pyramids //
     var svgP1 = d3.select("#pyramid1svg")
-    var state1 = [50,
+    var state1 = [stateData.properties.povertyPerc,
                   stateData.properties.insurance,
                   stateData.properties.donations,
-                  50];
+                  stateData.properties.percentWhite];
 
     svgP1.selectAll("rect")
          .data(state1)
@@ -253,10 +261,10 @@ var secondState = function(stateData, states) {
   // select the svg for the pyramids //
   var svgP2 = d3.select("#pyramid2svg")
 
-  var state2 = [50,
+  var state2 = [stateData.properties.povertyPerc,
                 stateData.properties.insurance,
                 stateData.properties.donations,
-                50];
+                stateData.properties.percentWhite];
 
   svgP2.selectAll("rect")
        .data(state2)
