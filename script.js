@@ -121,7 +121,7 @@ var drawMap = function(geoData)
       geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
       var donationsData = [];
       geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)});
-    // medical insurance -- percent of population without it
+    // health insurance -- percent of population without it
       var insuranceData = [];
       geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)});
     // poverty -- percent of population living in poverty
@@ -405,7 +405,7 @@ statesData.forEach(function(d, index) {
                  .x(function(d,i) {return margins.left + xScale(i)})
                  .y(function(d) {return yScale(d)})
 // labels for the legend
-var titles = ["Without Medical Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
+var titles = ["Without Health Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
 // collect the three datasets we want to graph
 var threeDatasets = [uninsured,minority,poverty]
 // for each of those datasets - draw a line!
