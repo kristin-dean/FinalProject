@@ -1,7 +1,7 @@
 div
 {
     display:block;
-    margin-left: 295;
+    margin-left: 260;
     margin-right: auto;
   }
 
@@ -16,4 +16,21 @@ div
 body
 {
     background-color: tan
+}
+
+.center
+{
+  text-align: center
+}
+
+title
+{
+  font-size: 300%;
+  width: 500px
+}
+
+h1
+{
+  font-size: 300%;
+  text-align: center
 }
