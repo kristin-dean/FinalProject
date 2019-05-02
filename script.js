@@ -298,8 +298,30 @@ var secondState = function(stateData, states) {
 };
 
 var drawLineChart = function(geoData) {
-    console.log("LINES");
-    var screen = {width:500,height:300};
+    var uninsured = [];
+    var donations = [];
+    var minority = [];
+    var poverty = [];
+    (geoData.features).forEach(function(d) {
+        if (d.properties.name != "District of Columbia") {
+          uninsured.push(+(d.properties.insurance));
+          donations.push(d3.format(",.2f")(d.properties.donations));
+          minority.push(d3.format(",.2")(d.properties.percentMinority));
+          poverty.push(+(d.properties.povertyPerc));}
+    })
+    console.log("HERE" + uninsured);
+    console.log(donations);
+    console.log(minority);
+    console.log(poverty);
+
+    var statesData = [];
+    (geoData.features).forEach(function(d) {
+        if (d.properties.name != "District of Columbia") {
+          statesData.push(d.properties);
+        }
+    })
+    console.log(statesData)
+    var screen = {width:1000,height:550};
 
     // select the svg for the line chart //
     var svg = d3.select("#linessvg")
@@ -308,35 +330,144 @@ var drawLineChart = function(geoData) {
 
     var margins =
         {
-        left:40,
+        left:60,
         right:10,
-        top:10,
+        top:0,
         bottom:40
         }
 
     var width = screen.width - margins.left - margins.right;
-    var height = screen.height - margins.top - margins.bottom;
+    var height = screen.height - margins.top - margins.bottom - 73;
 
     var xScale = d3.scaleLinear()
-                   .domain(d3.extent(geoData.features))
-                   .range([0,width]);
+                   .domain([0,50])
+                   .range([margins.left,width]);
 
     var yScale = d3.scaleLinear()
-                   .domain([0,10000])
+                   .domain([0,100])
                    .range([height,0]);
+//
+var xAxis = svg.append("g")
+xAxis.attr("class", "xAxis")
+     .selectAll("text")
+     .data(statesData)
+     .enter()
+     .append("text")
+     .text(function(d) {return d.name;})
+     .attr("x", function() {return -(screen.height - margins.bottom) + 63;})
+     .attr("y", function(d,i) {return margins.left/2 + 32 + xScale(i);})
+     .style("text-anchor","end")
+     .attr("transform","rotate(-90)");
+
+var xLine = svg.append("line")
+               .attr("class", "xAxis")
+               .attr("x1", margins.left)
+               .attr("y1", height + 0.5)
+               .attr("x2", xScale(width) + 10)
+               .attr("y2", height + 0.5)
+               .attr("stroke", "black");
+
+var verticalLines = svg.append("g")
+                       .attr("class", "verticalLines")
+
+
+statesData.forEach(function(d, index) {
+      verticalLines.append("line")
+                   .attr("class", "verticalLine")
+                   .attr("x1",margins.left/2 + xScale(index) + 30)
+                   .attr("y1", function(d,i) {
+                        var points = [uninsured[index],minority[index],poverty[index]];
+                        var yCoord = d3.max(points);
+                        return yScale(yCoord)})
+                   .attr("x2", margins.left/2 + xScale(index) +30)
+                   .attr("y2", height +6)
+                   .attr("stroke", "purple");})
+
+
+    var yScale = d3.scaleLinear()
+                   .domain([0,100])
+                   .range([height,0]);
+
+    var yAxis = d3.axisLeft()
+                  .scale(yScale);
+   svg.append("text")
+      .text("Percent of Population")
+      .attr("x", function() {return -(screen.height - margins.bottom) + 150})
+      .attr("y", 25)
+      .attr("transform","rotate(-90)");
+
+  svg.append("g")
+     .attr("class", "yAxis")
+     .attr("transform", "translate(" + margins.left + ",0)")
+     .call(yAxis)
+
     var line = d3.line()
-                 .x(function(d) {return xScale(d.properties.name)})
-                 .y(function(d) {return yScale(d.properties.funds / d.properties.deathR)})
+                 .x(function(d,i) {return margins.left + xScale(i)})
+                 .y(function(d) {return yScale(d)})
 
-//var findFunds = (geoData.features).forEach(function(d)
-  //          { return console.log(d.properties.funds)})
+var titles = ["Without Medical Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
 
+var threeDatasets = [uninsured,minority,poverty]
+threeDatasets.forEach(function(thisData, index2) {
     svg.append("g")
        .attr("classed","line")
        .append("path")
-       .datum(geoData)
+       .datum(thisData)
        .attr("d",line)
-       .attr("stroke","blue")
+       .attr("stroke",function(d) {
+         if (index2 == 0) {
+           return "red"}
+        else if (index2 == 1) {
+           return "blue"}
+        else if (index2 == 2) {
+           return "green"}})
        .attr("fill","none")
-       .attr("id","lineGraph")
+       .attr("id","lineGraph");
+
+  svg.append("g")
+     .attr("class", "dots")
+     .selectAll("circle")
+     .data(thisData)
+     .enter()
+     .append("circle")
+     .attr("class", "dot")
+     .attr("cx", function(d, i) {return margins.left + xScale(i);})
+     .attr("cy", function(d) {return yScale(d);})
+     .attr("r", 4)
+     .attr("fill",function(d) {
+       if (index2 == 0) {
+         return "#ab2121"}
+      else if (index2 == 1) {
+         return "#3352A9"}
+      else if (index2 == 2) {
+         return "#279127"}})
+     .on("mouseover", function(d, index) {
+         d3.select(this)
+           .attr("r", 7)
+           .append("title")
+           .text(function(irr) {return statesData[index].name + ": " + d})})
+
+   .on("mouseout", function(d, i) {
+        d3.select(this)
+          .attr("r", 4);});
+
+  svg.append("rect")
+     .attr("x", screen.width-210)
+     .attr("y", function(d) { return (20*index2)})
+     .attr("width", 15)
+     .attr("height", 15)
+     .attr("fill",function(d) {
+       if (index2 == 0) {
+         return "#ab2121"}
+      else if (index2 == 1) {
+         return "#3352A9"}
+      else if (index2 == 2) {
+         return "#279127"}});
+
+  svg.append("text")
+     .attr("x", screen.width - 190)
+     .attr("y", function(d) { return (20*index2)+13})
+     .text(titles[index2])
+
+  })
 }
