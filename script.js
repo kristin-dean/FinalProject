@@ -178,13 +178,6 @@ var drawMap = function(geoData)
        .attr("fill", "blue")
        .attr("font-size", "150%")
        .attr("font-weight", "bold");
-// specify scales and where the data came from
-/*  svgP1.append("text")
-       .text("*Funding reported in Thousands of Dollars per Death per 100,000")
-       .attr("id", "cancer scale")
-       .attr("x", 10)
-       .attr("y", 280)
-       .attr("fill", "black")*/
 
 // working with the pyramid on the right
   var svgP2 = d3.select("#pyramid2svg")
