@@ -96,12 +96,14 @@ var drawMap = function(geoData)
       .enter()
       .append("g")
 
+var colors = d3.scaleSequential(d3.interpolateBlues)
+               .domain([minRate,maxRate])
       // create a path and use the projection from earlier
       states.append("path")
       .attr("d",geoGenerator)
       .attr("stroke","black")
       .attr("fill",function(d){
-          return d3.interpolateBlues((d.properties.deathR - 70) / maxRate)});
+          return colors(d.properties.deathR);})
       // add a tooltip in the form of a title //
       states.append("title")
             .text(function(d) {return "State: " + d.properties.name +
@@ -121,7 +123,7 @@ var drawMap = function(geoData)
       geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
       var donationsData = [];
       geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)});
-    // health insurance -- percent of population without it
+    // medical insurance -- percent of population without it
       var insuranceData = [];
       geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)});
     // poverty -- percent of population living in poverty
@@ -132,9 +134,9 @@ var drawMap = function(geoData)
       geoData.features.forEach(function(d) {raceData.push(d.properties.percentMinority)})
 
 // HERE - we need to initialize the pyramids so they can be changed later
-   var sample = [povertyData[0],insuranceData[0],donationsData[0],raceData[0]];
-   var sample2 = [povertyData[1],insuranceData[1],donationsData[1],raceData[1]];
-   var labels = ["% Pop Below Poverty Line", "% Pop w/o Health-Insurance", "Cancer Research Funding*", "% Pop Non-White Race"]
+   var sample = [povertyData[0],insuranceData[0],raceData[0], donationsData[0]];
+   var sample2 = [povertyData[1],insuranceData[1],raceData[1], donationsData[1]];
+   var labels = ["% Pop Below Poverty Line", "% Pop w/o Health-Insurance", "% Pop Minority Race/Ethnicity", "Cancer Research Funding*"]
 
 // working with the pyramid on the left
    var svgP1 = d3.select("#pyramid1svg")
@@ -156,7 +158,7 @@ var drawMap = function(geoData)
         .enter()
         .append("text")
         .text(function(d) {return d;})
-        .attr("x", function(d,i) { return 415;})
+        .attr("x", function(d,i) { return 405;})
         .attr("y", function (d,i)  { return 70 + (i*47);});
 // select labels for each of the bar (the numbers/data)
    svgP1.selectAll("#graphLabels")
@@ -224,8 +226,8 @@ var firstState = function(stateData, states) {
     // new data
     var state1 = [stateData.properties.povertyPerc,
                   stateData.properties.insurance,
-                  stateData.properties.donations,
-                  stateData.properties.percentMinority];
+                  stateData.properties.percentMinority,
+                  stateData.properties.donations];
 //update the rectangles
     svgP1.selectAll("rect")
          .data(state1)
@@ -267,8 +269,8 @@ var secondState = function(stateData, states) {
   // new data
   var state2 = [stateData.properties.povertyPerc,
                 stateData.properties.insurance,
-                stateData.properties.donations,
-                stateData.properties.percentMinority];
+                stateData.properties.percentMinority,
+                stateData.properties.donations];
 // update the rectangles
   svgP2.selectAll("rect")
        .data(state2)
@@ -341,7 +343,7 @@ var drawLineChart = function(geoData) {
         bottom:40
         }
 // specify height and width we will work with
-    var width = screen.width - margins.left - margins.right;
+    var width = screen.width - margins.left;
     var height = screen.height - margins.top - margins.bottom - 73;
 
 // create scales
@@ -405,7 +407,7 @@ statesData.forEach(function(d, index) {
                  .x(function(d,i) {return margins.left + xScale(i)})
                  .y(function(d) {return yScale(d)})
 // labels for the legend
-var titles = ["Without Health Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
+var titles = ["Without Medical Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
 // collect the three datasets we want to graph
 var threeDatasets = [uninsured,minority,poverty]
 // for each of those datasets - draw a line!
