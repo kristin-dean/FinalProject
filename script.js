@@ -84,10 +84,16 @@ var drawMap = function(geoData)
     var rates = []
     var getRates = (geoData.features).forEach(function(d){
                     rates.push(d.properties.deathR) })
-    var maxRate = d3.max(rates);
-    var minRate = d3.min(rates);
+    var maxRate = +(d3.max(rates));
+    var minRate = +(d3.min(rates));
     var range = maxRate - minRate
     var divisions = range / 5
+    var colorScale = [minRate+(divisions*0),
+                      minRate+(divisions*1),
+                      minRate+(divisions*2),
+                      minRate+(divisions*3),
+                      minRate+(divisions*4),
+                      minRate+(divisions*5)];
 
     // create a group for each state //
     var states = svg.append("g")
@@ -95,11 +101,9 @@ var drawMap = function(geoData)
       .data(geoData.features)
       .enter()
       .append("g")
-    
-    // create color scale for the state fill
-    var colors = d3.scaleSequential(d3.interpolateBlues)
-                   .domain([minRate,maxRate])
-    
+
+var colors = d3.scaleSequential(d3.interpolateBlues)
+               .domain([minRate,maxRate])
       // create a path and use the projection from earlier
       states.append("path")
       .attr("d",geoGenerator)
@@ -113,12 +117,6 @@ var drawMap = function(geoData)
       // when a state is clicked, chart that data on the left (will switch to right later) //
       states.on("click", function(d) {
                 firstState(d, states)});
-
-// this is to add text over the map but it looks bad so come back to it?? //
-     /*states.append("text")
-      .attr("x",function(d) {return geoGenerator.centroid(d)[0]})
-      .attr("y",function(d) {return geoGenerator.centroid(d)[1]})
-      .text(function(d){return d.properties.ABBR});*/
 
 // sort the data according to how we want to use it
     // cancer research funding -- dollars donated per death per 100,000 in population
@@ -142,7 +140,7 @@ var drawMap = function(geoData)
 
 // working with the pyramid on the left
    var svgP1 = d3.select("#pyramid1svg")
-                 .attr("width",600)
+                 .attr("width",607)
                  .attr("height",260);
 // select rectangles and draw accordingly
    svgP1.selectAll("rect")
@@ -192,7 +190,7 @@ var drawMap = function(geoData)
        .data(sample2)
        .enter()
        .append("rect")
-       .attr("x", function(d,i) { return 10;})
+       .attr("x", function(d,i) { return 5;})
        .attr("y", function (d,i)  { return 50 + (i*47);})
        .attr("width", function(d) { return d*2;})
        .attr("height", 30)
@@ -217,6 +215,29 @@ var drawMap = function(geoData)
        .attr("y", function(d,i) {return 70 + (i*47)})
        .attr("fill", "black")
        .attr("font-weight", "bold");
+
+// draw a legend for the map color scale
+   svg.selectAll("rect")
+        .data(colorScale)
+        .enter()
+        .append("rect")
+        .attr("x", function(d,i) {return 275 +(i*60);})
+        .attr("y", 530)
+        .attr("width", 50)
+        .attr("height", 25)
+        .attr("fill", function(d) {return colors(d)});
+   svg.selectAll("text")
+        .data(colorScale)
+        .enter()
+        .append("text")
+        .attr("x", function(d,i) {return 287 +(i*60)})
+        .attr("y", 545)
+        .text(function(d,i) {return d3.format(",.0f")(d)})
+        .attr("fill", function(d,i)
+            {if (i>3) {
+              return "white"}
+            else {return "black"}})
+
 };
 
 
@@ -278,7 +299,7 @@ var secondState = function(stateData, states) {
        .data(state2)
        .transition()
        .duration(600)
-       .attr("x", function(d,i) { return 10;})
+       .attr("x", function(d,i) { return 5;})
        .attr("y", function (d,i)  { return 50 + (i*47);})
        .attr("width", function(d) { return d*2;})
        .attr("height", 30)
