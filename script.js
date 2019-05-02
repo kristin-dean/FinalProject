@@ -95,9 +95,11 @@ var drawMap = function(geoData)
       .data(geoData.features)
       .enter()
       .append("g")
-
-var colors = d3.scaleSequential(d3.interpolateBlues)
-               .domain([minRate,maxRate])
+    
+    // create color scale for the state fill
+    var colors = d3.scaleSequential(d3.interpolateBlues)
+                   .domain([minRate,maxRate])
+    
       // create a path and use the projection from earlier
       states.append("path")
       .attr("d",geoGenerator)
