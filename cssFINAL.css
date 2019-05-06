@@ -1,12 +1,11 @@
 div
 {
-    display:block;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  position: absolute;
+  left: 840px;
+  bottom: 180px;
+}
 
-
-#mapsvg, #linessvg
+#linessvg
 {
     display:block;
     margin-left: auto;
