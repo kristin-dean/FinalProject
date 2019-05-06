@@ -136,20 +136,22 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
 // HERE - we need to initialize the pyramids so they can be changed later //
    var sample = [povertyData[0],insuranceData[0],raceData[0], donationsData[0]];
    var sample2 = [povertyData[1],insuranceData[1],raceData[1], donationsData[1]];
-   var labels = ["% Pop Below Poverty Line", "% Pop w/o Health-Insurance", "% Pop Minority Race/Ethnicity", "Cancer Research Funding*"]
-
+   var labels = ["% Pop Below", "% Pop w/o", "% Pop Minority", "Cancer Research"]
+   var labels2 = ["Poverty Line", "Health-Insurance", "Race/Ethnicity",  "Funding*"]
 // working with the pyramid on the left //
    var svgP1 = d3.select("#pyramid1svg")
-                 .attr("width",607)
+                 .attr("width",375)
                  .attr("height",260);
+// putting everything in place for the first pyramid //
+   var xCoord = 250;
 // select rectangles and draw accordingly //
    svgP1.selectAll("rect")
         .data(sample)
         .enter()
         .append("rect")
-        .attr("x", function(d,i) { return 400 - (d*2);})
+        .attr("x", function(d,i) { return xCoord - (d*1.5);})
         .attr("y", function (d,i)  { return 50 + (i*47);})
-        .attr("width", function(d) { return d*2;})
+        .attr("width", function(d) { return d*1.5;})
         .attr("height", 30)
         .attr("fill", "#6da9c3");
 // select labels for each bar (what is being shown) //
@@ -158,8 +160,15 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
         .enter()
         .append("text")
         .text(function(d) {return d;})
-        .attr("x", function(d,i) { return 405;})
-        .attr("y", function (d,i)  { return 70 + (i*47);});
+        .attr("x", function(d,i) { return xCoord + 5;})
+        .attr("y", function (d,i)  { return 63 + (i*47);});
+   svgP1.selectAll("#text")
+        .data(labels2)
+        .enter()
+        .append("text")
+        .text(function(d) {return d;})
+        .attr("x", function(d,i) { return xCoord + 5;})
+        .attr("y", function (d,i)  { return 77 + (i*47);});
 // select labels for each of the bar (the numbers/data) //
    svgP1.selectAll("#graphLabels")
         .data(sample)
@@ -167,7 +176,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
         .append("text")
         .text(function(d) {return d3.format(",.1f")(d)})
         .attr("id", "graphLabels")
-        .attr("x", 360)
+        .attr("x", xCoord - 40)
         .attr("y", function(d,i) {return 70 + (i*47)})
         .attr("fill", "black")
         .attr("font-weight", "bold");
@@ -175,7 +184,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
   svgP1.append("text")
        .text("Alabama")
        .attr("id", "stateName1")
-       .attr("x", 300)
+       .attr("x", xCoord - 80)
        .attr("y", 20)
        .attr("fill", "blue")
        .attr("font-size", "150%")
@@ -183,7 +192,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
 
 // working with the pyramid on the right //
   var svgP2 = d3.select("#pyramid2svg")
-                .attr("width",400)
+                .attr("width",270)
                .attr("height",260);
 // select rectangles and draw accordingly //
   svgP2.selectAll("rect")
@@ -251,21 +260,23 @@ var firstState = function(stateData, states) {
                   stateData.properties.insurance,
                   stateData.properties.percentMinority,
                   stateData.properties.donations];
+// putting everything in place for the first pyramid //
+    var xCoord = 250;
 //update the rectangles //
     svgP1.selectAll("rect")
          .data(state1)
          .transition()
          .duration(600)
-         .attr("x", function(d,i) { return 400 - (d*2);})
+         .attr("x", function(d,i) { return xCoord - (d*1.5);})
          .attr("y", function (d,i)  { return 50 + (i*47);})
-         .attr("width", function(d) { return d*2;})
+         .attr("width", function(d) { return d*1.5;})
          .attr("height", 30)
          .attr("fill", "#6da9c3");
 // update the state name //
     svgP1.select("#stateName1")
          .text(name)
          .attr("id", "stateName1")
-         .attr("x", 300)
+         .attr("x", xCoord - 80)
          .attr("y", 20)
          .attr("fill", "blue")
          .attr("font-size", "150%");
@@ -273,7 +284,7 @@ var firstState = function(stateData, states) {
     svgP1.selectAll("#graphLabels")
          .data(state1)
          .text(function(d) {return d3.format(",.1f")(d)})
-         .attr("x", 360)
+         .attr("x", xCoord - 40)
          .attr("y", function(d,i) {return 70 + (i*47)})
          .attr("fill", "black")
          .attr("font-weight", "bold");
@@ -372,7 +383,7 @@ var drawLineChart = function(geoData) {
 // create scales //
     var xScale = d3.scaleLinear()
                    .domain([0,50])
-                   .range([margins.left,width]);
+                   .range([30,width]);
     var yScale = d3.scaleLinear()
                    .domain([0,100])
                    .range([height,0]);
@@ -383,6 +394,7 @@ xAxis.attr("class", "xAxis")
      .data(statesData)
      .enter()
      .append("text")
+     .attr("id", "stateAxisLabels")
      .text(function(d) {return d.name;})
      .attr("x", function() {return -(screen.height - margins.bottom) + 63;})
      .attr("y", function(d,i) {return margins.left/2 + 32 + xScale(i);})
@@ -487,7 +499,8 @@ threeDatasets.forEach(function(thisData, index2) {
       else if (index2 == 1) {
          return "#3352A9"}
       else if (index2 == 2) {
-         return "#279127"}});
+         return "#279127"}})
+     .on("click",function(d,i) {return updateLines(statesData, index2);})
 // add text to the legend //
   svg.append("text")
      .attr("x", screen.width - 190)
@@ -495,4 +508,83 @@ threeDatasets.forEach(function(thisData, index2) {
      .text(titles[index2])
 // that's it! //
   })
+};
+
+var updateLines = function(data, index2) {
+  thisDataset = manipulate(data, index2)
+  console.log(thisDataset);
+var svg = d3.select("#linessvg");
+//
+var needToDelete = svg.selectAll("#stateAxisLabels");
+needToDelete.remove();
+
+var xScale = d3.scaleLinear()
+               .domain([0,50])
+               .range([30,940]);
+var yScale = d3.scaleLinear()
+               .domain([0,100])
+               .range([437,0]);
+var line = d3.line()
+             .x(function(d,i) {return 10 + xScale(i)})
+             .y(function(d) {return yScale(d)})
+
+svg.select(".line")
+   .datum(thisDataset)
+   .attr("d",line)
+   .attr("stroke",function(d) {
+     if (index2 == 0) {
+       return "red"}
+    else if (index2 == 1) {
+       return "blue"}
+    else if (index2 == 2) {
+       return "green"}})
+   .attr("fill","none")
+   .attr("id","lineGraph");
+/*
+var xAxis = svg.append("g")
+xAxis.attr("class", "xAxis")
+     .selectAll("text")
+     .data(thisDataset)
+     .enter()
+     .append("text")
+     .attr("id", "stateAxisLabels")
+     .text(function(d) {return d.name;})
+     .attr("x", function() {return -(screen.height - margins.bottom) + 63;})
+     .attr("y", function(d,i) {return margins.left/2 + 32 + xScale(i);})
+     .style("text-anchor","end")
+     .attr("transform","rotate(-90)");
+var verticalLines = svg.append("g")
+                       .attr("class", "verticalLines")
+// draw those vertical lines where they need to be //
+statesData.forEach(function(d, index) {
+      verticalLines.append("line")
+                   .attr("class", "verticalLine")
+                   .attr("x1",margins.left/2 + xScale(index) + 30)
+                   .attr("y1", function(d,i) {
+                        var points = [uninsured[index],minority[index],poverty[index]];
+                        var yCoord = d3.max(points);
+                        return yScale(yCoord)})
+                   .attr("x2", margins.left/2 + xScale(index) +30)
+                   .attr("y2", height +6)
+                   .attr("stroke", "purple");})*/
+//
+
+
 }
+
+var manipulate = function(allData, i) {
+  if (i == 0) {
+    var byInsurance = allData.slice(0);
+    byInsurance.sort(function(a,b) {
+            return a.insurance - b.insurance;});
+    return byInsurance }
+ else if (i == 1) {
+   var byMinority = allData.slice(0);
+   byMinority.sort(function(a,b) {
+           return a.percentMinority - b.percentMinority;});
+   return byMinority }
+ else if (i == 2) {
+   var byPoverty = allData.slice(0);
+   byPoverty.sort(function(a,b) {
+           return a.povertyPerc - b.povertyPerc;});
+  return byPoverty }}
