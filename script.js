@@ -220,7 +220,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
        .append("text")
        .text(function(d) {return d3.format(",.1f")(d)})
        .attr("id", "graphLabels")
-       .attr("x", 20)
+       .attr("x", 15)
        .attr("y", function(d,i) {return 70 + (i*47)})
        .attr("fill", "black")
        .attr("font-weight", "bold");
@@ -327,7 +327,7 @@ var secondState = function(stateData, states) {
   svgP2.selectAll("#graphLabels")
        .data(state2)
        .text(function(d) {return d3.format(",.1f")(d)})
-       .attr("x", 20)
+       .attr("x", 15)
        .attr("y", function(d,i) {return 70 + (i*47)})
        .attr("fill", "black")
        .attr("font-weight", "bold");
