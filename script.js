@@ -122,7 +122,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
     // cancer research funding -- dollars donated per death per 100,000 in population //
       geoData.features.forEach(function(d) {d.properties.donations = (d.properties.funds  / d.properties.deathR) / 1000});
       var donationsData = [];
-      geoData.features.forEach(function(d) {donationsData.push(d.properties.donations)});
+      geoData.features.forEach(function(d) {donationsData.push(d.properties.funds / 200000)});
     // medical insurance -- percent of population without it //
       var insuranceData = [];
       geoData.features.forEach(function(d) {insuranceData.push(d.properties.insurance)});
@@ -259,7 +259,7 @@ var firstState = function(stateData, states) {
     var state1 = [stateData.properties.povertyPerc,
                   stateData.properties.insurance,
                   stateData.properties.percentMinority,
-                  stateData.properties.donations];
+                  (stateData.properties.funds) / 200000];
 // putting everything in place for the first pyramid //
     var xCoord = 250;
 //update the rectangles //
@@ -304,7 +304,7 @@ var secondState = function(stateData, states) {
   var state2 = [stateData.properties.povertyPerc,
                 stateData.properties.insurance,
                 stateData.properties.percentMinority,
-                stateData.properties.donations];
+                (stateData.properties.funds) / 200000];
 // update the rectangles //
   svgP2.selectAll("rect")
        .data(state2)
