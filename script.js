@@ -201,7 +201,7 @@ var colors = d3.scaleSequential(d3.interpolateBlues)
        .append("rect")
        .attr("x", function(d,i) { return 5;})
        .attr("y", function (d,i)  { return 50 + (i*47);})
-       .attr("width", function(d) { return d*2;})
+       .attr("width", function(d) { return d*1.5;})
        .attr("height", 30)
        .attr("fill", "#6da9c3");
 // show which state is being plotted on the right //
@@ -312,7 +312,7 @@ var secondState = function(stateData, states) {
        .duration(600)
        .attr("x", function(d,i) { return 5;})
        .attr("y", function (d,i)  { return 50 + (i*47);})
-       .attr("width", function(d) { return d*2;})
+       .attr("width", function(d) { return d*1.5;})
        .attr("height", 30)
        .attr("fill", "#6da9c3");
 // update the state name //
@@ -448,7 +448,7 @@ var threeDatasets = [uninsured,minority,poverty]
 // for each of those datasets - draw a line! //
 threeDatasets.forEach(function(thisData, index2) {
     svg.append("g")
-       .attr("classed","line")
+       .attr("id","line")
        .append("path")
        .datum(thisData)
        .attr("d",line)
@@ -506,30 +506,134 @@ threeDatasets.forEach(function(thisData, index2) {
      .attr("x", screen.width - 190)
      .attr("y", function(d) { return (20*index2)+13})
      .text(titles[index2])
-// that's it! //
   })
+  svg.append("rect")
+     .attr("x", screen.width-210)
+     .attr("y", function(d) { return (20*3)})
+     .attr("width", 15)
+     .attr("height", 15)
+     .attr("fill","slategrey")
+     .on("click",function(d,i) {return updateLines(statesData, 3);})
+  // add text to the legend //
+  svg.append("text")
+     .attr("x", screen.width - 190)
+     .attr("y", function(d) { return (20*3)+13})
+     .text("Alphabetical")
+
+
 };
 
-var updateLines = function(data, index2) {
-  thisDataset = manipulate(data, index2)
-  console.log(thisDataset);
+
+
+var updateLines = function(data, indexKEY) {
+  thisDataset = manipulate(data, indexKEY)
+
 var svg = d3.select("#linessvg");
+var line = d3.line()
+             .x(function(d,i) {return margins.left + xScale(i)})
+             .y(function(d) {return yScale(d)})
 //
 var needToDelete = svg.selectAll("#stateAxisLabels");
 needToDelete.remove();
 
+//collecting all the data we need
+    var uninsured = [];
+    var donations = [];
+    var minority = [];
+    var poverty = [];
+    (thisDataset).forEach(function(d) {
+        if (d.name != "District of Columbia") {
+          uninsured.push(+(d.insurance));
+          donations.push(d3.format(",.2f")(d.donations));
+          minority.push(d3.format(",.2")(d.percentMinority));
+          poverty.push(+(d.povertyPerc));}})
+
+//
+var statesData = [];
+(thisDataset).forEach(function(d) {
+    if (d.name != "District of Columbia") {
+      statesData.push(d);
+    }
+})
+// set screen numbers //
+var screen = {width:1000,height:550};
+
+// set margin numbers //
+var margins =
+    {
+    left:60,
+    right:10,
+    top:0,
+    bottom:40
+    }
+// specify height and width we will work with //
+var width = screen.width - margins.left;
+var height = screen.height - margins.top - margins.bottom - 73;
+
+// create scales //
 var xScale = d3.scaleLinear()
                .domain([0,50])
-               .range([30,940]);
+               .range([30,width]);
 var yScale = d3.scaleLinear()
                .domain([0,100])
-               .range([437,0]);
-var line = d3.line()
-             .x(function(d,i) {return 10 + xScale(i)})
-             .y(function(d) {return yScale(d)})
+               .range([height,0]);
+// adding all the state names on the bottom axis //
+svg.selectAll("#xAxis").remove()
+var xAxis = svg.append("g")
+xAxis.attr("class", "xAxis")
+ .selectAll("text")
+ .data(statesData)
+ .enter()
+ .append("text")
+ .attr("id", "stateAxisLabels")
+ .text(function(d) {return d.name;})
+ .attr("x", function() {return -(screen.height - margins.bottom) + 63;})
+ .attr("y", function(d,i) {return margins.left/2 + 32 + xScale(i);})
+ .style("text-anchor","end")
+ .attr("transform","rotate(-90)");
+// drawing a line for the bottom axis //
+var xLine = svg.append("line")
+           .attr("class", "xAxis")
+           .attr("x1", margins.left)
+           .attr("y1", height + 0.5)
+           .attr("x2", xScale(width) + 10)
+           .attr("y2", height + 0.5)
+           .attr("stroke", "black");
+// to draw lines so the data is easier to connect to each state //
+svg.select("#verticalLines").remove()
+var verticalLines = svg.append("g")
+                   .attr("class", "verticalLines")
+// draw those vertical lines where they need to be //
+svg.selectAll(".verticalLine").remove()
+statesData.forEach(function(d, index) {
+  verticalLines.append("line")
+               .attr("class", "verticalLine")
+               .attr("x1",margins.left/2 + xScale(index) + 30)
+               .attr("y1", function(d,i) {
+                    var points = [uninsured[index],minority[index],poverty[index]];
+                    var yCoord = d3.max(points);
+                    return yScale(yCoord)})
+               .attr("x2", margins.left/2 + xScale(index) +30)
+               .attr("y2", height +6)
+               .attr("stroke", "purple");})
 
-svg.select(".line")
-   .datum(thisDataset)
+// set the line drawing function //
+var line = d3.line()
+             .x(function(d,i) {return margins.left + xScale(i)})
+             .y(function(d) {return yScale(d)})
+// labels for the legend
+var titles = ["Without Medical Insurance", "Of a Minority Race/Ethnicity", "Living in Poverty"]
+// collect the three datasets we want to graph //
+var threeDatasets = [uninsured,minority,poverty]
+// for each of those datasets - draw a line! //
+svg.selectAll("circle").remove();
+svg.selectAll("path").remove();
+threeDatasets.forEach(function(thisData, index2) {
+svg.selectAll("#line").remove();
+svg.append("g")
+   .attr("class","line" + index2)
+   .append("path")
+   .datum(thisData)
    .attr("d",line)
    .attr("stroke",function(d) {
      if (index2 == 0) {
@@ -540,35 +644,41 @@ svg.select(".line")
        return "green"}})
    .attr("fill","none")
    .attr("id","lineGraph");
-/*
-var xAxis = svg.append("g")
-xAxis.attr("class", "xAxis")
-     .selectAll("text")
-     .data(thisDataset)
-     .enter()
-     .append("text")
-     .attr("id", "stateAxisLabels")
-     .text(function(d) {return d.name;})
-     .attr("x", function() {return -(screen.height - margins.bottom) + 63;})
-     .attr("y", function(d,i) {return margins.left/2 + 32 + xScale(i);})
-     .style("text-anchor","end")
-     .attr("transform","rotate(-90)");
-var verticalLines = svg.append("g")
-                       .attr("class", "verticalLines")
-// draw those vertical lines where they need to be //
-statesData.forEach(function(d, index) {
-      verticalLines.append("line")
-                   .attr("class", "verticalLine")
-                   .attr("x1",margins.left/2 + xScale(index) + 30)
-                   .attr("y1", function(d,i) {
-                        var points = [uninsured[index],minority[index],poverty[index]];
-                        var yCoord = d3.max(points);
-                        return yScale(yCoord)})
-                   .attr("x2", margins.left/2 + xScale(index) +30)
-                   .attr("y2", height +6)
-                   .attr("stroke", "purple");})*/
-//
+// also draw the dots for each state //
+svg.append("g")
+ .attr("class", "dots" + index2)
+ .selectAll("circle")
+ .data(thisData)
+ .enter()
+ .append("circle")
+ .attr("class", "dot")
+ .attr("cx", function(d, i) {return margins.left + xScale(i);})
+ .attr("cy", function(d) {return yScale(d);})
+ .attr("r", 4)
+ .attr("fill",function(d) {
+   if (index2 == 0) {
+     return "#ab2121"}
+  else if (index2 == 1) {
+     return "#3352A9"}
+  else if (index2 == 2) {
+     return "#279127"}})
+ .on("mouseover", function(d, index) {
+     d3.select(this)
+       .attr("r", 7)
+       .append("title")
+       .text(function(irr) {return statesData[index].name + ": " + d})})
+ .on("mouseout", function(d, i) {
+      d3.select(this)
+        .attr("r", 4);});})
 
+// etablish the y axis //
+     var yAxis = d3.axisLeft()
+                   .scale(yScale);
+// draw the y axis //
+    svg.append("g")
+       .attr("class", "yAxis")
+       .attr("transform", "translate(" + margins.left + ",0)")
+       .call(yAxis)
 
 }
 
@@ -587,4 +697,10 @@ var manipulate = function(allData, i) {
    var byPoverty = allData.slice(0);
    byPoverty.sort(function(a,b) {
            return a.povertyPerc - b.povertyPerc;});
-  return byPoverty }}
+  return byPoverty }
+else if (i == 3) {
+   var byAlpha = allData.slice(0);
+   byAlpha.sort(function(a,b) {
+           return a.name - b.name;});
+  return byAlpha }
+}
